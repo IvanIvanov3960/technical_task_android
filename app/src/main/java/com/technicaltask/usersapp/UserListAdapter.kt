@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.technicaltask.usersapp.databinding.SingleItemBinding
 import com.technicaltask.usersapp.network.User
 
-class UserListAdapter(val onClickListener: OnClickListener) : ListAdapter<User, UserListAdapter.UserViewHolder>(DiffCallback) {
+class UserListAdapter(val onClickListener: OnLongClickListener) : ListAdapter<User, UserListAdapter.UserViewHolder>(DiffCallback) {
 
     companion object DiffCallback : DiffUtil.ItemCallback<User>() {
         override fun areItemsTheSame(oldItem: User, newItem: User): Boolean {
@@ -40,7 +40,9 @@ class UserListAdapter(val onClickListener: OnClickListener) : ListAdapter<User, 
         }
     }
 
-    class OnClickListener(val clickListener: (user: User) -> Unit) {
-        fun onClick(user: User) = clickListener(user)
+    class OnLongClickListener(val clickListener: (user: User) -> Unit) {
+        fun onClick(user: User) {
+             clickListener(user)
+        }
     }
 }

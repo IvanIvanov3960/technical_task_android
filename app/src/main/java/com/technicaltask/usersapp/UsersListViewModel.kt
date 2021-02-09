@@ -10,6 +10,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import retrofit2.awaitResponse
 import java.lang.Exception
 
 class UsersListViewModel : ViewModel() {
@@ -24,6 +25,14 @@ class UsersListViewModel : ViewModel() {
 
     fun displayUserDetails(user: User) {
         _navigateToSelectedProperty.value = user
+    }
+
+    fun deleteUser(user: User) {
+        coroutineScope.launch {
+            var getPropertiesDeferred = UserApi.retrofitService.deleteUser(user.id, R.string.token.toString())
+            val res = getPropertiesDeferred.await()
+            val a = 1
+        }
     }
 
     init {
