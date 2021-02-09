@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.technicaltask.usersapp.databinding.UsersListFragmentBinding
 
 class UsersListFragment : Fragment() {
 
@@ -13,19 +14,27 @@ class UsersListFragment : Fragment() {
         fun newInstance() = UsersListFragment()
     }
 
-    private lateinit var viewModel: UsersListViewModel
+    private val viewModel: UsersListViewModel by lazy {
+        ViewModelProvider(this).get(UsersListViewModel::class.java)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.users_list_fragment, container, false)
-    }
+        val binding = UsersListFragmentBinding.inflate(inflater)
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProvider(this).get(UsersListViewModel::class.java)
-        // TODO: Use the ViewModel
+        binding.lifecycleOwner = this
+
+        binding.users = viewModel
+
+        val listUsers = viewModel.users
+
+
+        binding.recyclerView.adapter = UserListAdapter(UserListAdapter.OnClickListener {
+            viewModel.displayUserDetails(it)
+        })
+        return binding.root
     }
 
 }
