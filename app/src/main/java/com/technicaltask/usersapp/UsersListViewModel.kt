@@ -3,14 +3,16 @@ package com.technicaltask.usersapp
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.technicaltask.usersapp.network.User
 import com.technicaltask.usersapp.network.UserApi
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import retrofit2.awaitResponse
+import okhttp3.ResponseBody
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import java.lang.Exception
 
 class UsersListViewModel : ViewModel() {
@@ -18,20 +20,30 @@ class UsersListViewModel : ViewModel() {
     private var viewModelJob = Job()
     private val coroutineScope = CoroutineScope(viewModelJob + Dispatchers.Main )
 
-    private val _navigateToSelectedProperty = MutableLiveData<User>()
+    private val _user = MutableLiveData<User>()
 
-    val navigateToSelectedProperty: LiveData<User>
-        get() = _navigateToSelectedProperty
+    val user: LiveData<User>
+        get() = this._user
 
     fun displayUserDetails(user: User) {
-        _navigateToSelectedProperty.value = user
+        this._user.value = user
     }
 
     fun deleteUser(user: User) {
         coroutineScope.launch {
             var getPropertiesDeferred = UserApi.retrofitService.deleteUser(user.id, R.string.token.toString())
-            val res = getPropertiesDeferred.await()
-            val a = 1
+            getPropertiesDeferred.enqueue(object : Callback<ResponseBody> {
+                override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+
+                }
+                override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                    if (response.code() == 200) {
+                        
+//                        Toast.makeText(, "Long click", Toast.LENGTH_SHORT).show()
+//                        Snackbar.make(viewModelScope, response.code().toString(), Snackbar.LENGTH_SHORT).show
+                    }
+                }
+            })
         }
     }
 
@@ -47,7 +59,7 @@ class UsersListViewModel : ViewModel() {
     private val _users = MutableLiveData<List<User>>()
 
     val users: LiveData<List<User>>
-        get() = _users
+        get() = this._users
 
     private fun getUsers() {
         coroutineScope.launch {
@@ -56,7 +68,7 @@ class UsersListViewModel : ViewModel() {
                 var listResult = getPropertiesDeferred.await()
                 _status.value = "Success: ${listResult.data.size} Number of users retrieved"
                 if (listResult.data.size > 0) {
-                    getLastPageUsers(listResult.meta.pagination.pages)
+                    getLastPageUsers(listResult.meta?.pagination!!.pages)
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -70,7 +82,7 @@ class UsersListViewModel : ViewModel() {
             try {
                 var listResult = getPropertiesDeferred.await()
                 if (listResult.data.size > 0) {
-                    _users.value = listResult.data
+                    this@UsersListViewModel._users.value = listResult.data
                 }
             } catch (e: Exception) {
                 e.printStackTrace()

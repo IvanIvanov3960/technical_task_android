@@ -2,7 +2,7 @@ package com.technicaltask.usersapp.network
 
 data class Request (
     val code: Long,
-    val meta: Meta,
+    val meta: Meta? = null,
     val data: List<User>
 )
 
